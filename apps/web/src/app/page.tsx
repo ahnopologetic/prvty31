@@ -1,103 +1,133 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+
+const BASE_URL = "http://localhost:8000";
+
+type LoginResponse = { token: string; token_type: string; user_id: string };
+
+type TimerState =
+  | {
+      id: string;
+      status: "running" | "stopped";
+      started_at: string | null;
+      updated_at: string;
+    }
+  | null;
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [username, setUsername] = useState("demo");
+  const [password, setPassword] = useState("demo");
+  const [token, setToken] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [timerId, setTimerId] = useState<string>("demo-timer");
+  const [status, setStatus] = useState<"running" | "stopped">("stopped");
+  const [startedAt, setStartedAt] = useState<string | null>(null);
+  const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+  const wsRef = useRef<WebSocket | null>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  async function login() {
+    const res = await fetch(`${BASE_URL}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    if (!res.ok) throw new Error("Login failed");
+    const data: LoginResponse = await res.json();
+    setToken(data.token);
+    setUserId(data.user_id);
+  }
+
+  async function fetchState(tok: string) {
+    const res = await fetch(`${BASE_URL}/timers`, {
+      headers: { Authorization: `Bearer ${tok}` },
+    });
+    if (!res.ok) throw new Error("Fetch timer failed");
+    const data: TimerState = await res.json();
+    if (data) {
+      setStatus(data.status);
+      setStartedAt(data.started_at);
+      setUpdatedAt(data.updated_at);
+      if (data.id) setTimerId(data.id);
+    }
+  }
+
+  function connectWs(tok: string) {
+    const ws = new WebSocket(`ws://localhost:8000/ws?token=${encodeURIComponent(tok)}`);
+    ws.onmessage = (ev) => {
+      try {
+        const data = JSON.parse(ev.data);
+        if (data?.event === "timer_updated") {
+          const p = data.payload;
+          setStatus(p.status);
+          setStartedAt(p.started_at ?? null);
+          setUpdatedAt(p.updated_at);
+          if (p.id) setTimerId(p.id);
+        }
+      } catch {}
+    };
+    wsRef.current = ws;
+  }
+
+  function startTimer() {
+    if (!wsRef.current || !userId) return;
+    wsRef.current.send(
+      JSON.stringify({ action: "timer_start", id: timerId, user_id: userId, started_at: new Date().toISOString() })
+    );
+  }
+
+  function stopTimer() {
+    if (!wsRef.current || !userId) return;
+    wsRef.current.send(JSON.stringify({ action: "timer_stop", id: timerId, user_id: userId }));
+  }
+
+  useEffect(() => {
+    if (!token) return;
+    fetchState(token).catch(() => {});
+    connectWs(token);
+    return () => {
+      if (wsRef.current?.readyState === WebSocket.OPEN) wsRef.current.close();
+    };
+  }, [token]);
+
+  return (
+    <div style={{ fontFamily: "sans-serif", maxWidth: 560, margin: "40px auto" }}>
+      <h1>Timer (Web)</h1>
+      {!token ? (
+        <div style={{ display: "flex", gap: 8 }}>
+          <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="username" />
+          <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="password"
+            type="password"
+          />
+          <button onClick={login}>Login</button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      ) : (
+        <div>
+          <p>
+            <strong>User:</strong> {userId}
+          </p>
+          <p>
+            <strong>Timer ID:</strong> {timerId}
+          </p>
+          <p>
+            <strong>Status:</strong> {status}
+          </p>
+          <p>
+            <strong>Started:</strong> {startedAt ?? "-"}
+          </p>
+          <p>
+            <strong>Updated:</strong> {updatedAt ?? "-"}
+          </p>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={startTimer}>Start</button>
+            <button onClick={stopTimer}>Stop</button>
+            <button onClick={() => token && fetchState(token)}>Refresh</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

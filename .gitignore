@@ -5,3 +5,6 @@ out/
 dist
 dist-ssr
 *.local
+*.db
+__pycache__/
+.venv/
