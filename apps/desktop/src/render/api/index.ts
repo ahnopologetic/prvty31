@@ -4,7 +4,8 @@ export function sendMsgToMainProcess(msg: string) {
   return ipcInstance.send<string>('send-msg', msg)
 }
 
-const BASE_URL = 'http://localhost:8000'
+const BASE_HTTP_URL = process.env.BASE_URL ?? 'http://localhost:8000'
+const BASE_WS_URL = process.env.BASE_WS_URL ?? 'ws://localhost:8000'
 
 export type LoginResponse = {
   token: string
@@ -20,7 +21,7 @@ export type TimerState = {
 } | null
 
 export async function apiLogin(username: string, password: string): Promise<LoginResponse> {
-  const res = await fetch(`${BASE_URL}/login`, {
+  const res = await fetch(`${BASE_HTTP_URL}/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
@@ -30,7 +31,7 @@ export async function apiLogin(username: string, password: string): Promise<Logi
 }
 
 export async function apiGetTimer(token: string): Promise<TimerState> {
-  const res = await fetch(`${BASE_URL}/timers`, {
+  const res = await fetch(`${BASE_HTTP_URL}/timers`, {
     headers: { Authorization: `Bearer ${token}` },
   })
   if (!res.ok) throw new Error('Fetch timer failed')
@@ -44,7 +45,7 @@ export type TimerWs = {
 }
 
 export function connectTimerWs(token: string, onMessage: (data: any) => void): TimerWs {
-  const ws = new WebSocket(`ws://localhost:8000/ws?token=${encodeURIComponent(token)}`)
+  const ws = new WebSocket(`${BASE_WS_URL}/ws?token=${encodeURIComponent(token)}`)
   ws.onmessage = (ev) => {
     try {
       const data = JSON.parse(ev.data)

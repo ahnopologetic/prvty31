@@ -2,17 +2,17 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 type LoginResponse = { token: string; token_type: string; user_id: string };
 
 type TimerState =
   | {
-      id: string;
-      status: "running" | "stopped";
-      started_at: string | null;
-      updated_at: string;
-    }
+    id: string;
+    status: "running" | "stopped";
+    started_at: string | null;
+    updated_at: string;
+  }
   | null;
 
 export default function Home() {
@@ -64,7 +64,7 @@ export default function Home() {
           setUpdatedAt(p.updated_at);
           if (p.id) setTimerId(p.id);
         }
-      } catch {}
+      } catch { }
     };
     wsRef.current = ws;
   }
@@ -83,7 +83,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!token) return;
-    fetchState(token).catch(() => {});
+    fetchState(token).catch(() => { });
     connectWs(token);
     return () => {
       if (wsRef.current?.readyState === WebSocket.OPEN) wsRef.current.close();
