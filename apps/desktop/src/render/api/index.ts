@@ -4,8 +4,8 @@ export function sendMsgToMainProcess(msg: string) {
   return ipcInstance.send<string>('send-msg', msg)
 }
 
-const BASE_HTTP_URL = process.env.BASE_URL ?? 'http://localhost:8000'
-const BASE_WS_URL = process.env.BASE_WS_URL ?? 'ws://localhost:8000'
+const BASE_HTTP_URL = 'https://prvty31-production.up.railway.app'
+const BASE_WS_URL = 'ws://prvty31-production.up.railway.app'
 
 export type LoginResponse = {
   token: string

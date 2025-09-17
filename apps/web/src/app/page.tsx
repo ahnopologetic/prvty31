@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const BASE_WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? "ws://localhost:8000";
 
 type LoginResponse = { token: string; token_type: string; user_id: string };
 
@@ -53,7 +54,7 @@ export default function Home() {
   }
 
   function connectWs(tok: string) {
-    const ws = new WebSocket(`ws://localhost:8000/ws?token=${encodeURIComponent(tok)}`);
+    const ws = new WebSocket(`${BASE_WS_URL}/ws?token=${encodeURIComponent(tok)}`);
     ws.onmessage = (ev) => {
       try {
         const data = JSON.parse(ev.data);
