@@ -7,10 +7,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .auth import AuthenticatedUser, get_current_user_creds
-from .db import SessionLocal
-from .models import Timer
-from .schemas import TimerStateResponse
+from auth import AuthenticatedUser, get_current_user_creds
+from db import SessionLocal
+from models import Timer
+from schemas import TimerStateResponse
 
 router = APIRouter(prefix="", tags=["timers"])
 

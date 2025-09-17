@@ -9,13 +9,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import text
 
-from .auth import AuthenticatedUser, create_access_token, decode_token, get_current_user_creds
-from .db import engine
-from .models import Base
-from .schemas import ClientMessage, LoginRequest, LoginResponse, TimerMessage, TimerPayload
-from .timers import router as timers_router, upsert_timer
-from .ws import manager
-from .db import SessionLocal
+from auth import AuthenticatedUser, create_access_token, decode_token, get_current_user_creds
+from db import engine
+from models import Base
+from schemas import ClientMessage, LoginRequest, LoginResponse, TimerMessage, TimerPayload
+from timers import router as timers_router, upsert_timer
+from ws import manager
+from db import SessionLocal
 
 app = FastAPI(title="Timer Sync API")
 
