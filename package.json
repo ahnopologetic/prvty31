@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "pnpm --filter @prvty31/desktop dev"
+    "dev:desktop": "pnpm --filter @prvty31/desktop dev",
+    "dev:web": "pnpm --filter @prvty31/web dev"
   },
   "keywords": [],
   "author": "",
