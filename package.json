@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev:desktop": "pnpm --filter @prvty31/desktop dev",
-    "dev:web": "pnpm --filter @prvty31/web dev"
+    "dev:web": "pnpm --filter @prvty31/web dev",
+    "dev:mobile-ios": "pnpm --filter @prvty31/mobile ios",
+    "dev:mobile-android": "pnpm --filter @prvty31/mobile android"
   },
   "keywords": [],
   "author": "",
