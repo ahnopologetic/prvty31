@@ -188,12 +188,6 @@ export const AnalogTimer = React.forwardRef<AnalogTimerRef, AnalogTimerProps>(({
   const centerY = size / 2;
   const radius = (size - 40) / 2; // Leave space for border
   const strokeWidth = 8;
-  const circumference = 2 * Math.PI * radius;
-
-  // Calculate progress: start at initial time position and decrement
-  // For a 25min timer: should start at 25/60 * 360° = 150° from 12 o'clock
-  // As time decreases, the arc should shrink back toward 12 o'clock
-  const remainingProgress = remainingSeconds / totalSeconds;
 
   // Calculate the arc for remaining time
   // Arc always starts at 12 o'clock (-90°) and ends at the remaining time position

@@ -32,6 +32,7 @@ export default defineConfig({
       '@main': join(__dirname, 'src/main'),
       '@common': join(__dirname, 'src/common'),
     },
+    dedupe: ['react', 'react-dom'],
   },
   base: './',
   build: {

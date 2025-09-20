@@ -1,11 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
 import { AnalogTimer } from './AnalogTimer';
 
 // More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
   title: 'Components/AnalogTimer',
-  component: AnalogTimer,
+  component: AnalogTimer as any,
   parameters: {
     // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
     layout: 'centered',
@@ -17,68 +16,6 @@ const meta = {
   },
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
   tags: ['autodocs'],
-  // More on argTypes: https://storybook.js.org/docs/api/argtypes
-  argTypes: {
-    initialMinutes: {
-      control: { type: 'range', min: 1, max: 60, step: 1 },
-      description: 'Initial duration in minutes (1-60)',
-    },
-    size: {
-      control: { type: 'range', min: 100, max: 400, step: 10 },
-      description: 'Timer size in pixels',
-    },
-    primaryColor: {
-      control: 'color',
-      description: 'Primary color for the timer progress indicator',
-    },
-    secondaryColor: {
-      control: 'color',
-      description: 'Secondary color for elapsed time background',
-    },
-    backgroundColor: {
-      control: 'color',
-      description: 'Background color for the timer face',
-    },
-    borderColor: {
-      control: 'color',
-      description: 'Border color for the timer rim and text',
-    },
-    showDigitalTime: {
-      control: 'boolean',
-      description: 'Whether to show digital time display',
-    },
-    enableSound: {
-      control: 'boolean',
-      description: 'Whether to enable sound notifications on completion',
-    },
-    progressMode: {
-      control: { type: 'select' },
-      options: ['sector', 'arc'],
-      description: 'Progress display mode: sector (filled pie slice) or arc (outline only)',
-    },
-    controlled: {
-      control: 'boolean',
-      description: 'Whether the timer is controlled externally',
-    },
-    isRunning: {
-      control: 'boolean',
-      description: 'External control for starting/pausing (controlled mode only)',
-      if: { arg: 'controlled', eq: true },
-    },
-    shouldReset: {
-      control: 'boolean',
-      description: 'External control for resetting (controlled mode only)',
-      if: { arg: 'controlled', eq: true },
-    },
-  },
-  // Use `fn` to spy on the callback args, which will appear in the actions panel once invoked
-  args: {
-    onComplete: fn(),
-    onStart: fn(),
-    onPause: fn(),
-    onReset: fn(),
-    onTimeUpdate: fn(),
-  },
 } satisfies Meta<typeof AnalogTimer>;
 
 export default meta;
