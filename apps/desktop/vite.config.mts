@@ -38,12 +38,4 @@ export default defineConfig({
     outDir: join(__dirname, 'dist/render'),
     emptyOutDir: true,
   },
-  test: { // e2e tests
-    include: [join(__dirname, 'tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}')],
-    exclude: [join(__dirname, 'tests/e2e.spec.ts')],
-    testTimeout: 30_000,
-    hookTimeout: 30_000,
-    setupFiles: [join(__dirname, 'tests/setup.ts')],
-    environment: 'happy-dom',
-  },
 })
