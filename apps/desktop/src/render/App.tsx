@@ -17,14 +17,6 @@ const App: React.FC = () => {
 
   const wsRef = useRef<ReturnType<typeof connectTimerWs> | null>(null)
 
-  const login = async () => {
-    const auth = await apiLogin(username, password)
-    setToken(auth.token)
-    setUserId(auth.user_id)
-    await fetchState()
-    connectWs()
-  }
-
   const fetchState = async () => {
     if (!token)
       return
@@ -51,6 +43,14 @@ const App: React.FC = () => {
           setTimerId(p.id)
       }
     })
+  }
+
+  const login = async () => {
+    const auth = await apiLogin(username, password)
+    setToken(auth.token)
+    setUserId(auth.user_id)
+    await fetchState()
+    connectWs()
   }
 
   const startTimer = () => {
@@ -85,79 +85,82 @@ const App: React.FC = () => {
   }
 
   return (
-    <div id="app">
-      <h1>Timer (Electron)</h1>
+    <div className="font-sans antialiased text-center text-slate-700 pt-16 md:pt-16 pt-5 min-h-screen bg-gradient-main p-5 md:p-5 p-2.5">
+      <h1 className="text-slate-700 font-light text-4xl md:text-4xl text-3xl mb-8 drop-shadow-sm">Timer (Electron)</h1>
       {!token
         ? (
-            <div>
+            <div className="space-y-4">
               <input
+                className="input-field"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
                 placeholder="username"
               />
               <input
+                className="input-field"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="password"
                 type="password"
               />
-              <button onClick={login}>Login</button>
+              <div className="mt-4">
+                <button className="primary-btn" onClick={login}>Login</button>
+              </div>
             </div>
           )
         : (
             <div>
-              <div className="navigation">
+              <div className="flex md:flex-row flex-col justify-center items-center gap-4 mb-8">
                 <button
-                  className={`nav-btn ${currentView === 'dashboard' ? 'active' : ''}`}
+                  className={`nav-btn md:w-auto w-48 ${currentView === 'dashboard' ? 'active' : ''}`}
                   onClick={() => setCurrentView('dashboard')}
                 >
                   Dashboard
                 </button>
                 <button
-                  className={`nav-btn ${currentView === 'timer' ? 'active' : ''}`}
+                  className={`nav-btn md:w-auto w-48 ${currentView === 'timer' ? 'active' : ''}`}
                   onClick={() => setCurrentView('timer')}
                 >
                   Analog Timer
                 </button>
               </div>
 
-              <div className="dashboard-content">
-                <p>
-                  <strong>User:</strong>
+              <div className="dashboard-card md:p-8 p-5">
+                <p className="dashboard-text">
+                  <span className="dashboard-label">User:</span>
                   {' '}
                   {userId}
                 </p>
-                <p>
-                  <strong>Timer ID:</strong>
+                <p className="dashboard-text">
+                  <span className="dashboard-label">Timer ID:</span>
                   {' '}
                   {timerId}
                 </p>
-                <p>
-                  <strong>Status:</strong>
+                <p className="dashboard-text">
+                  <span className="dashboard-label">Status:</span>
                   {' '}
                   {status}
                 </p>
-                <p>
-                  <strong>Started:</strong>
+                <p className="dashboard-text">
+                  <span className="dashboard-label">Started:</span>
                   {' '}
                   {startedAt ?? '-'}
                 </p>
-                <p>
-                  <strong>Updated:</strong>
+                <p className="dashboard-text">
+                  <span className="dashboard-label">Updated:</span>
                   {' '}
                   {updatedAt ?? '-'}
                 </p>
-                <div>
-                  <button onClick={startTimer}>Start</button>
-                  <button onClick={stopTimer}>Stop</button>
-                  <button onClick={fetchState}>Refresh</button>
+                <div className="mt-6">
+                  <button className="primary-btn" onClick={startTimer}>Start</button>
+                  <button className="primary-btn" onClick={stopTimer}>Stop</button>
+                  <button className="primary-btn" onClick={fetchState}>Refresh</button>
                 </div>
 
-                <div className="quick-access">
+                <div className="quick-access-card">
                   <p>
                     Try the new
-                    <button className="link-btn" onClick={() => setCurrentView('timer')}>Analog Timer</button>
-                    {' '}
+                    <button className="link-btn ml-1 mr-1" onClick={() => setCurrentView('timer')}>Analog Timer</button>
                     for a better visual experience!
                   </p>
                 </div>

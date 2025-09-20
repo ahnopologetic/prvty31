@@ -4,7 +4,6 @@ import { AnalogTimer } from '@prvty31/components'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { apiGetTimer, connectTimerWs } from '../api/index'
 import '@prvty31/components/styles'
-import './TimerPage.css'
 
 interface TimerPageProps {
   token: string
@@ -91,6 +90,19 @@ export const TimerPage: React.FC<TimerPageProps> = ({ token, userId, onBack }) =
     }
   }, [fetchState, connectWs])
 
+  const handleStopTimer = () => {
+    if (!wsRef.current || !userId)
+      return
+
+    // Stop the analog timer
+    timerRef.current?.pause()
+
+    // Notify backend
+    wsRef.current.sendStop(timerId, userId)
+  }
+
+  const stopTimer = handleStopTimer
+
   // Sync with backend timer when running
   useEffect(() => {
     if (status === 'running' && startedAt && sessionStartTime.current > 0) {
@@ -101,7 +113,7 @@ export const TimerPage: React.FC<TimerPageProps> = ({ token, userId, onBack }) =
 
         if (remaining === 0) {
           // Timer completed
-          stopTimer()
+          handleStopTimer()
         }
       }, 1000)
 
@@ -125,17 +137,6 @@ export const TimerPage: React.FC<TimerPageProps> = ({ token, userId, onBack }) =
     wsRef.current.sendStart(timerId, userId, new Date().toISOString())
   }
 
-  const stopTimer = () => {
-    if (!wsRef.current || !userId)
-      return
-
-    // Stop the analog timer
-    timerRef.current?.pause()
-
-    // Notify backend
-    wsRef.current.sendStop(timerId, userId)
-  }
-
   const resetTimer = () => {
     // Reset the analog timer
     timerRef.current?.reset()
@@ -151,6 +152,7 @@ export const TimerPage: React.FC<TimerPageProps> = ({ token, userId, onBack }) =
     // Timer completed naturally
     stopTimer()
     // You could add notification, sound, etc. here
+    // eslint-disable-next-line no-alert
     alert('Timer completed! Take a break.')
   }
 
@@ -172,7 +174,7 @@ export const TimerPage: React.FC<TimerPageProps> = ({ token, userId, onBack }) =
         <button className="back-button" onClick={onBack}>
           ← Back
         </button>
-        <h1>Productivity Timer</h1>
+        <h1 className="timer-header-title">Productivity Timer</h1>
       </div>
 
       <div className="timer-container">
@@ -195,38 +197,38 @@ export const TimerPage: React.FC<TimerPageProps> = ({ token, userId, onBack }) =
         </div>
 
         <div className="timer-info">
-          <div className="session-info">
-            <h3>Current Session</h3>
-            <p>
-              <strong>Duration:</strong>
+          <div className="timer-card">
+            <h3 className="timer-card-title">Current Session</h3>
+            <p className="session-text">
+              <span className="session-label">Duration:</span>
               {' '}
               {currentSessionMinutes}
               {' '}
               minutes
             </p>
-            <p>
-              <strong>Status:</strong>
+            <p className="session-text">
+              <span className="session-label">Status:</span>
               {' '}
               {status}
             </p>
             {remainingSeconds > 0 && (
-              <p>
-                <strong>Remaining:</strong>
+              <p className="session-text">
+                <span className="session-label">Remaining:</span>
                 {' '}
                 {formatTime(remainingSeconds)}
               </p>
             )}
             {startedAt && (
-              <p>
-                <strong>Started:</strong>
+              <p className="session-text">
+                <span className="session-label">Started:</span>
                 {' '}
                 {new Date(startedAt).toLocaleTimeString()}
               </p>
             )}
           </div>
 
-          <div className="timer-presets">
-            <h3>Quick Presets</h3>
+          <div className="timer-card">
+            <h3 className="timer-card-title">Quick Presets</h3>
             <div className="preset-buttons">
               {presetMinutes.map(minutes => (
                 <button
@@ -247,9 +249,9 @@ export const TimerPage: React.FC<TimerPageProps> = ({ token, userId, onBack }) =
             </div>
           </div>
 
-          <div className="timer-controls">
+          <div className="timer-card">
             <div className="control-group">
-              <h3>Controls</h3>
+              <h3 className="timer-card-title">Controls</h3>
               <div className="control-buttons">
                 {status === 'stopped'
                   ? (
@@ -273,7 +275,7 @@ export const TimerPage: React.FC<TimerPageProps> = ({ token, userId, onBack }) =
             </div>
 
             <div className="control-group">
-              <h3>Display Mode</h3>
+              <h3 className="timer-card-title">Display Mode</h3>
               <div className="mode-selector">
                 <button
                   className={`mode-btn ${progressMode === 'sector' ? 'active' : ''}`}
@@ -294,13 +296,15 @@ export const TimerPage: React.FC<TimerPageProps> = ({ token, userId, onBack }) =
       </div>
 
       <div className="timer-footer">
-        <p className="timer-id">
+        <p>
           Timer ID:
+          {' '}
           {timerId}
         </p>
         {updatedAt && (
-          <p className="last-update">
+          <p>
             Last updated:
+            {' '}
             {new Date(updatedAt).toLocaleString()}
           </p>
         )}
