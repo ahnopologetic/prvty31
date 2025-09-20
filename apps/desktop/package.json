@@ -2,7 +2,9 @@
   "name": "@prvty31/desktop",
   "version": "0.0.1",
   "packageManager": "pnpm@10.16.1",
-  "description": "Vite + Electron with esbuild, so fast! ⚡",
+  "description": "Vite + Electron + React with esbuild, so fast! ⚡",
+  "author": "Prvty31",
+  "homepage": "./",
   "main": "dist/main/index.js",
   "scripts": {
     "dev": "rimraf dist && vite",
@@ -11,7 +13,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "npm run test:main && npm run test:render",
-    "test:render": "vitest run -r src/render --passWithNoTests",
+    "test:render": "vitest run --passWithNoTests",
     "test:main": "vitest run -r src/main --passWithNoTests",
     "test:e2e": "vitest run",
     "postinstall": "electron-builder install-app-deps",
@@ -19,13 +21,16 @@
   },
   "dependencies": {
     "einf": "^1.5.3",
-    "vue": "^3.5.18"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@lightwing/eslint-config": "1.0.126",
-    "@vitejs/plugin-vue": "6.0.1",
-    "@vue/compiler-sfc": "3.5.21",
-    "@vue/test-utils": "2.4.6",
+    "@testing-library/react": "^16.0.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
     "electron": "38.1.0",
     "electron-builder": "26.0.12",
     "eslint": "9.35.0",
@@ -38,8 +43,7 @@
     "typescript": "5.9.2",
     "vite": "7.1.5",
     "vite-plugin-doubleshot": "0.0.19",
-    "vitest": "3.2.4",
-    "vue-tsc": "3.0.7"
+    "vitest": "3.2.4"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -53,7 +57,7 @@
     "pre-commit": "npx lint-staged"
   },
   "lint-staged": {
-    "*.{js,ts,tsx,vue,md,json,yml}": [
+    "*.{js,ts,tsx,md,json,yml}": [
       "eslint --fix"
     ]
   }

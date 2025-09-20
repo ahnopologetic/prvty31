@@ -1,6 +1,6 @@
 /// <reference types="vitest" />
 import { join } from 'node:path'
-import vue from '@vitejs/plugin-vue'
+import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePluginDoubleshot } from 'vite-plugin-doubleshot'
 
@@ -8,7 +8,7 @@ import { VitePluginDoubleshot } from 'vite-plugin-doubleshot'
 export default defineConfig({
   root: join(__dirname, 'src/render'),
   plugins: [
-    vue(),
+    react(),
     VitePluginDoubleshot({
       type: 'electron',
       main: 'dist/main/index.js',
@@ -39,8 +39,11 @@ export default defineConfig({
     emptyOutDir: true,
   },
   test: { // e2e tests
-    include: ['./tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    include: [join(__dirname, 'tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}')],
+    exclude: [join(__dirname, 'tests/e2e.spec.ts')],
     testTimeout: 30_000,
     hookTimeout: 30_000,
+    setupFiles: [join(__dirname, 'tests/setup.ts')],
+    environment: 'happy-dom',
   },
 })

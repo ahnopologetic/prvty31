@@ -8,11 +8,16 @@ const config = {
   },
   publish: null,
   npmRebuild: false,
+  nodeGypRebuild: false,
+  buildDependenciesFromSource: false,
   files: [
     'dist/main/**/*',
     'dist/preload/**/*',
     'dist/render/**/*',
+    '!node_modules/**/*',
   ],
+  extraResources: [],
+  asar: false,
 }
 
 module.exports = config

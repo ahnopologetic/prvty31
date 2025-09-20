@@ -1,0 +1,26 @@
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+
+button { 
+  margin: 0 6px; 
+}
+
+input {
+  margin: 0 6px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+textarea {
+  font-family: monospace;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+}
