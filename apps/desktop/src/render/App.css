@@ -71,7 +71,7 @@
   }
   
   .timer-display {
-    @apply flex justify-center items-center min-h-96 bg-white/10 rounded-3xl backdrop-blur-3xl border border-white/20 p-10 shadow-card;
+    @apply flex justify-center items-center min-h-96 bg-white/10 rounded-3xl backdrop-blur-3xl border border-white/20 p-10;
   }
   
   .timer-info {

@@ -5,15 +5,16 @@ const isDev = !app.isPackaged
 
 export async function createWindow() {
   const win = new BrowserWindow({
-    width: 1024,
-    height: 768,
+    width: 400,
+    height: 650,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       preload: join(__dirname, '../preload/index.js'),
       devTools: isDev,
     },
-    autoHideMenuBar: !isDev,
+    autoHideMenuBar: true,
+    titleBarStyle: 'hidden',
   })
 
   const URL = isDev

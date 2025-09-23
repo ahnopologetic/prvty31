@@ -1,172 +1,53 @@
-import type { TimerState } from './api/index'
-import React, { useEffect, useRef, useState } from 'react'
-import { apiGetTimer, apiLogin, connectTimerWs } from './api/index'
-import TimerPage from './components/TimerPage'
+import type { AnalogTimerRef } from '@prvty31/components'
+import { AnalogTimer } from '@prvty31/components'
+import React, { useRef, useState } from 'react'
 import './App.css'
+import '@prvty31/components/styles'
 
 const App: React.FC = () => {
-  const [username, setUsername] = useState('demo')
-  const [password, setPassword] = useState('demo')
-  const [token, setToken] = useState<string | null>(null)
-  const [userId, setUserId] = useState<string | null>(null)
-  const [timerId, setTimerId] = useState('demo-timer')
-  const [status, setStatus] = useState<'running' | 'stopped'>('stopped')
-  const [startedAt, setStartedAt] = useState<string | null>(null)
-  const [updatedAt, setUpdatedAt] = useState<string | null>(null)
-  const [currentView, setCurrentView] = useState<'dashboard' | 'timer'>('dashboard')
-
-  const wsRef = useRef<ReturnType<typeof connectTimerWs> | null>(null)
-
-  const fetchState = async () => {
-    if (!token)
-      return
-    const state: TimerState = await apiGetTimer(token)
-    if (state) {
-      setStatus(state.status)
-      setStartedAt(state.started_at)
-      setUpdatedAt(state.updated_at)
-      if (state.id)
-        setTimerId(state.id)
-    }
+  const [selectedMinutes, setSelectedMinutes] = useState(25)
+  const [progressMode, setProgressMode] = useState<'sector' | 'arc'>('sector')
+  const timerRef = useRef<AnalogTimerRef>(null)
+  const handleTimerComplete = () => {
+    console.log('Timer completed')
   }
-
-  const connectWs = () => {
-    if (!token)
-      return
-    wsRef.current = connectTimerWs(token, (data) => {
-      if (data?.event === 'timer_updated') {
-        const p = data.payload
-        setStatus(p.status)
-        setStartedAt(p.started_at ?? null)
-        setUpdatedAt(p.updated_at)
-        if (p.id)
-          setTimerId(p.id)
-      }
-    })
+  const handleTimeUpdate = (remainingSeconds: number) => {
+    console.log('Time updated', remainingSeconds)
   }
-
-  const login = async () => {
-    const auth = await apiLogin(username, password)
-    setToken(auth.token)
-    setUserId(auth.user_id)
-    await fetchState()
-    connectWs()
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedMinutes(Number(e.target.value))
+    timerRef.current?.setTime(Number(e.target.value))
   }
-
-  const startTimer = () => {
-    if (!wsRef.current || !userId)
-      return
-    wsRef.current.sendStart(timerId, userId, new Date().toISOString())
+  const handleStart = () => {
+    console.log('Timer started')
   }
-
-  const stopTimer = () => {
-    if (!wsRef.current || !userId)
-      return
-    wsRef.current.sendStop(timerId, userId)
+  const handlePause = () => {
+    console.log('Timer paused')
   }
-
-  useEffect(() => {
-    return () => {
-      if (wsRef.current?.socket?.readyState === WebSocket.OPEN) {
-        wsRef.current.socket.close()
-      }
-    }
-  }, [])
-
-  // Show timer page if user is logged in and selected timer view
-  if (token && userId && currentView === 'timer') {
-    return (
-      <TimerPage
-        token={token}
-        userId={userId}
-        onBack={() => setCurrentView('dashboard')}
-      />
-    )
+  const handleReset = () => {
+    console.log('Timer reset')
   }
 
   return (
-    <div className="font-sans antialiased text-center text-slate-700 pt-16 md:pt-16 pt-5 min-h-screen bg-gradient-main p-5 md:p-5 p-2.5">
-      <h1 className="text-slate-700 font-light text-4xl md:text-4xl text-3xl mb-8 drop-shadow-sm">Timer (Electron)</h1>
-      {!token
-        ? (
-            <div className="space-y-4">
-              <input
-                className="input-field"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
-                placeholder="username"
-              />
-              <input
-                className="input-field"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder="password"
-                type="password"
-              />
-              <div className="mt-4">
-                <button className="primary-btn" onClick={login}>Login</button>
-              </div>
-            </div>
-          )
-        : (
-            <div>
-              <div className="flex md:flex-row flex-col justify-center items-center gap-4 mb-8">
-                <button
-                  className={`nav-btn md:w-auto w-48 ${currentView === 'dashboard' ? 'active' : ''}`}
-                  onClick={() => setCurrentView('dashboard')}
-                >
-                  Dashboard
-                </button>
-                <button
-                  className={`nav-btn md:w-auto w-48 ${currentView === 'timer' ? 'active' : ''}`}
-                  onClick={() => setCurrentView('timer')}
-                >
-                  Analog Timer
-                </button>
-              </div>
-
-              <div className="dashboard-card md:p-8 p-5">
-                <p className="dashboard-text">
-                  <span className="dashboard-label">User:</span>
-                  {' '}
-                  {userId}
-                </p>
-                <p className="dashboard-text">
-                  <span className="dashboard-label">Timer ID:</span>
-                  {' '}
-                  {timerId}
-                </p>
-                <p className="dashboard-text">
-                  <span className="dashboard-label">Status:</span>
-                  {' '}
-                  {status}
-                </p>
-                <p className="dashboard-text">
-                  <span className="dashboard-label">Started:</span>
-                  {' '}
-                  {startedAt ?? '-'}
-                </p>
-                <p className="dashboard-text">
-                  <span className="dashboard-label">Updated:</span>
-                  {' '}
-                  {updatedAt ?? '-'}
-                </p>
-                <div className="mt-6">
-                  <button className="primary-btn" onClick={startTimer}>Start</button>
-                  <button className="primary-btn" onClick={stopTimer}>Stop</button>
-                  <button className="primary-btn" onClick={fetchState}>Refresh</button>
-                </div>
-
-                <div className="quick-access-card">
-                  <p>
-                    Try the new
-                    <button className="link-btn ml-1 mr-1" onClick={() => setCurrentView('timer')}>Analog Timer</button>
-                    for a better visual experience!
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+    <div className="font-sans antialiased">
+      <div className="grid gap-4 grid-cols-1 grid-rows-2 items-center justify-center py-10 h-screen">
+        <div className="timer-display flex justify-center items-center py-10">
+          <AnalogTimer
+            initialMinutes={selectedMinutes}
+            ref={timerRef}
+            size={360}
+          />
+        </div>
+        <div className="controls-container flex flex-col items-center justify-center">
+          <label htmlFor="minutes" className="text-center text-xs font-bold">Minutes</label>
+          <input
+            type="number"
+            className="w-24 my-4 text-center text-md font-bold bg-white/10 border rounded-lg p-2 max-w-md mx-auto"
+            value={selectedMinutes}
+            onChange={handleInputChange}
+          />
+        </div>
+      </div>
     </div>
   )
 }

@@ -255,19 +255,19 @@ export const TimerPage: React.FC<TimerPageProps> = ({ token, userId, onBack }) =
               <div className="control-buttons">
                 {status === 'stopped'
                   ? (
-                      <button
-                        className="control-btn start-btn"
-                        onClick={startTimer}
-                        disabled={selectedMinutes === 0}
-                      >
-                        Start Timer
-                      </button>
-                    )
+                    <button
+                      className="control-btn start-btn"
+                      onClick={startTimer}
+                      disabled={selectedMinutes === 0}
+                    >
+                      Start Timer
+                    </button>
+                  )
                   : (
-                      <button className="control-btn stop-btn" onClick={stopTimer}>
-                        Stop Timer
-                      </button>
-                    )}
+                    <button className="control-btn stop-btn" onClick={stopTimer}>
+                      Stop Timer
+                    </button>
+                  )}
                 <button className="control-btn reset-btn" onClick={resetTimer}>
                   Reset
                 </button>
